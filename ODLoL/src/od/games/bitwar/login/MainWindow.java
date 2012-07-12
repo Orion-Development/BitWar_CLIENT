@@ -3,6 +3,7 @@ package od.games.bitwar.login;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
@@ -24,7 +25,7 @@ public class MainWindow extends JFrame {
     private JTextField          jTextField1;
     private JToggleButton       jToggleButton1;
     private final OptionsDialog opt;
-    private String              table, host, port, database, username, password;
+    private String              table ="accounts", host="stelar7.in", port="3306", database="divwebstuff", username="root", password="8663";
     private Database            db;
 
     public MainWindow() {
@@ -149,9 +150,9 @@ public class MainWindow extends JFrame {
 
     private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) {
         if (db.validateGameLogin(table, jTextField1.getText(), jPasswordField1.getPassword())) {
-            System.out.print("login sucessfull!");
+            JOptionPane.showMessageDialog(null, "login sucessfull!");
         } else {
-            System.out.print("login failed!");
+            JOptionPane.showMessageDialog(null, "login failed!");
         }
     }
 

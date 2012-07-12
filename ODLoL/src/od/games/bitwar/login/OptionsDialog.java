@@ -5,7 +5,7 @@ public class OptionsDialog extends javax.swing.JDialog {
     private static final long             serialVersionUID = -1L;
 
     private javax.swing.JButton           jButton1;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel            jLabel1;
 
     public OptionsDialog(final java.awt.Frame parent, final boolean modal) {
@@ -16,14 +16,14 @@ public class OptionsDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<String>();
+        jComboBox1 = new javax.swing.JComboBox();
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setText("Memory to Allocate:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<String>(new String[] { "512 Mb", "1 Gb", "2 Gb", "4 Gb" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "512 Mb", "1 Gb", "2 Gb", "4 Gb" }));
         jComboBox1.setSelectedIndex(1);
 
         jButton1.setText("OK");
