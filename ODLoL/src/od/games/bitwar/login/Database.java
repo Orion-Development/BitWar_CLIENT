@@ -9,12 +9,6 @@ import java.sql.Statement;
 
 public class Database {
 
-    public static void main(final String[] args) {
-        final Database b = new Database("localhost", "3306", "divwebstuff", "root", "8663");
-        b.openDatabaseConnection();
-        System.out.print(b.validateGameLogin("accounts", "asd", "asd"));
-    }
-
     protected boolean    connected;
     protected Connection connection;
     private String       hostname = "";
@@ -173,9 +167,13 @@ public class Database {
      *            the password to check logins against
      * @return true if valid user
      */
-    public boolean validateGameLogin(final String table, final String username, final String password) {
+    public boolean validateGameLogin(final String table, final String username, final char[] password) {
         try {
-            final String finalpassword = md5Hash(password);
+            String finalpassword = "";
+            for (final char c : password) {
+                finalpassword += c;
+            }
+            finalpassword = md5Hash(finalpassword);
             final ResultSet rs = this.query("SELECT COUNT(*) FROM " + table + " WHERE login='" + username + "' AND password='" + finalpassword + "'");
             rs.next();
             if (rs.getInt(1) == 1) {
