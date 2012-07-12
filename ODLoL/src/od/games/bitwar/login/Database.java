@@ -1,20 +1,31 @@
-package od.games.unknownname.login;
+package od.games.bitwar.login;
 
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class MySQL extends Database {
-    private String hostname = "";
-    private String portnmbr = "";
-    private String username = "";
-    private String password = "";
-    private String database = "";
+public class Database {
 
-    public MySQL(final String hostname, final String portnmbr, final String database, final String username, final String password) {
-        super();
+    public static void main(final String[] args) {
+        final Database b = new Database("localhost", "3306", "divwebstuff", "root", "8663");
+        b.openDatabaseConnection();
+        System.out.print(b.validateGameLogin("accounts", "asd", "asd"));
+    }
+
+    protected boolean    connected;
+    protected Connection connection;
+    private String       hostname = "";
+    private String       portnmbr = "";
+    private String       username = "";
+    private String       password = "";
+    private String       database = "";
+
+    public Database(final String hostname, final String portnmbr, final String database, final String username, final String password) {
+        this.connected = false;
+        this.connection = null;
         this.hostname = hostname;
         this.portnmbr = portnmbr;
         this.database = database;
@@ -26,7 +37,7 @@ public class MySQL extends Database {
      * open database connection
      * 
      * */
-    public Connection open() {
+    public Connection openDatabaseConnection() {
         String url = "";
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -44,7 +55,7 @@ public class MySQL extends Database {
     /**
      * close database connection
      * */
-    public void close() {
+    public void closeDatabaseConnection() {
         try {
             if (connection != null) {
                 connection.close();
@@ -71,7 +82,9 @@ public class MySQL extends Database {
      * @return true if still active
      * */
     public boolean checkConnection() {
-        if (connection != null) { return true; }
+        if (connection != null) {
+            return true;
+        }
         return false;
     }
 
@@ -96,7 +109,7 @@ public class MySQL extends Database {
                 try {
                     statement.executeUpdate(query);
                 } catch (final SQLException ex) {
-                    if (e.getMessage().startsWith("You have an error in your SQL syntax;")) {
+                    if (e.getMessage().startsWith("You have an error in your SQL syntax;\n")) {
                         String temp = (e.getMessage().split(";")[0].substring(0, 36) + e.getMessage().split(";")[1].substring(91));
                         temp = temp.substring(0, temp.lastIndexOf("'"));
                         throw new SQLException(temp);
@@ -104,7 +117,7 @@ public class MySQL extends Database {
                         ex.printStackTrace();
                     }
                 }
-            } else if (e.getMessage().startsWith("You have an error in your SQL syntax;")) {
+            } else if (e.getMessage().startsWith("You have an error in your SQL syntax;\n")) {
                 String temp = (e.getMessage().split(";")[0].substring(0, 36) + e.getMessage().split(";")[1].substring(91));
                 temp = temp.substring(0, temp.lastIndexOf("'"));
                 throw new SQLException(temp);
@@ -116,29 +129,6 @@ public class MySQL extends Database {
     }
 
     /**
-     * Empties a table
-     * 
-     * @param table
-     *            the table to empty
-     * @return true if data-removal was successful.
-     * 
-     * */
-    public boolean clearTable(final String table) {
-        Statement statement = null;
-        String query = null;
-        try {
-            statement = this.connection.createStatement();
-            final ResultSet result = statement.executeQuery("SELECT * FROM " + table);
-            if (result == null) { return false; }
-            query = "DELETE FROM " + table;
-            statement.executeUpdate(query);
-            return true;
-        } catch (final SQLException e) {
-            return false;
-        }
-    }
-
-    /**
      * Insert data into a table
      * 
      * @param table
@@ -146,8 +136,7 @@ public class MySQL extends Database {
      * @param column
      *            a String[] of the columns to insert to
      * @param value
-     *            a String[] of the values to insert into the column (value[0]
-     *            goes in column[0])
+     *            a String[] of the values to insert into the column (value[0] goes in column[0])
      * 
      * @return true if insertion was successful.
      * */
@@ -174,22 +163,52 @@ public class MySQL extends Database {
     }
 
     /**
-     * Delete a table
+     * Check the login against the server (password is encrypted with md5 before getting checked with the server)
      * 
      * @param table
-     *            the table to delete
-     * @return true if deletion was successful.
-     * */
-    public boolean deleteTable(final String table) {
-        Statement statement = null;
+     *            the table to check logins against
+     * @param username
+     *            the username to check logins against
+     * @param password
+     *            the password to check logins against
+     * @return true if valid user
+     */
+    public boolean validateGameLogin(final String table, final String username, final String password) {
         try {
-            if (table.equals("") || (table == null)) { return true; }
-            statement = connection.createStatement();
-            statement.executeUpdate("DROP TABLE " + table);
-            return true;
-        } catch (final SQLException e) {
+            final String finalpassword = md5Hash(password);
+            final ResultSet rs = this.query("SELECT COUNT(*) FROM " + table + " WHERE login='" + username + "' AND password='" + finalpassword + "'");
+            rs.next();
+            if (rs.getInt(1) == 1) {
+                return true;
+            }
+        } catch (final Exception e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
+    }
+
+    /**
+     * Hashes a string into md5
+     * 
+     * @param hashme
+     *            the string to hash
+     * @return the hashed string
+     * @throws Exception
+     */
+    private String md5Hash(final String hashme) throws Exception {
+        final byte[] bytesOfMessage = hashme.getBytes("UTF-8");
+        final MessageDigest md = MessageDigest.getInstance("MD5");
+        md.reset();
+        md.update(bytesOfMessage);
+        final byte prehash[] = md.digest();
+        final StringBuffer finalpass = new StringBuffer();
+        for (int i = 0; i < prehash.length; i++) {
+            final String hex = Integer.toHexString(0xFF & prehash[i]);
+            if (hex.length() == 1) {
+                finalpass.append('0');
+            }
+            finalpass.append(hex);
+        }
+        return finalpass.toString();
     }
 }
