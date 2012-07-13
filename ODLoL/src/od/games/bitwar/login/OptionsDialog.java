@@ -20,6 +20,7 @@ public class OptionsDialog extends javax.swing.JDialog {
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
 
         jLabel1.setText("Memory to Allocate:");
 
