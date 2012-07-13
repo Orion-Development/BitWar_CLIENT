@@ -24,7 +24,6 @@ public class MainWindow extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
     }
 
-    @SuppressWarnings("unchecked")
     private void initComponents() {
         db = new Database(host, port, database, username, password);
         db.openDatabaseConnection();

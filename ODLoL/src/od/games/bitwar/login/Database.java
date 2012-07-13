@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.swing.JOptionPane;
+
 public class Database {
 
     protected boolean    connected;
@@ -39,9 +41,9 @@ public class Database {
             this.connection = DriverManager.getConnection(url, this.username, this.password);
             return this.connection;
         } catch (final SQLException e) {
-            System.out.print("Could not connect to MySQL server!");
+            JOptionPane.showMessageDialog(null, "Could not connect to MySQL server!\nProgram will now exit!");
         } catch (final ClassNotFoundException e) {
-            System.out.print("JDBC Driver not found!");
+            JOptionPane.showMessageDialog(null, "JDBC Driver not found!\nProgram will now exit!");
         }
         return null;
     }
